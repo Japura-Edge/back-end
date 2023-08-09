@@ -47,7 +47,7 @@ router.get('/', async (req, res) => {
 router.get('/search/:key', async (req, res) => {
     try {
         const { key } = req.params
-        const respond = await Product.find({ keywords: { $regex: new RegExp(key, 'i') } }).limit(20)
+        const respond = await Product.find({ keywords: { $regex: new RegExp(key, 'i') } }).limit(12)
         res.json(respond)
     } catch (err) {
         res.status(404).json({ message: 'not found', error: err})
