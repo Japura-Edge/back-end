@@ -15,6 +15,7 @@ const userSchema = new schema({
     seller: {type: Boolean, required: false},
     registrationNo: {type: String, required: false},
     faculty: {type: String, required: false},
+    userLevel: {type: String, required: false},
 }, {
     timestamps: true
 })

@@ -62,7 +62,8 @@ router.post('/login', async (req, res) => {
 // To create a new user record.
 router.post('/add', async (req, res) => {
     try {
-        const {userName, firstName, profilePic, lastName, phoneNumber, email, password, favorites, seller, registrationNo, faculty} = req.body
+        const {userName, firstName, profilePic, lastName, phoneNumber, email, 
+            password, favorites, seller, registrationNo, faculty, userLevel} = req.body
 
         const user = await User.findOne({ userName })
         if (user) {
@@ -80,7 +81,8 @@ router.post('/add', async (req, res) => {
             favorites: favorites,
             seller: seller,
             registrationNo: registrationNo,
-            faculty: faculty
+            faculty: faculty,
+            userLevel: userLevel
         })
 
         // set faculty count
