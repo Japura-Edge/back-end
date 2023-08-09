@@ -2,6 +2,7 @@ const express = require('express')
 const router = express.Router()
 const bcrypt = require('bcrypt')
 const User = require('../models/user.model')
+const Faculty = require('../models/faculty.model')
 
 // To get all user data
 router.get('/', async (req, res) => {
@@ -81,6 +82,10 @@ router.post('/add', async (req, res) => {
             registrationNo: registrationNo,
             faculty: faculty
         })
+
+        // set faculty count
+        const facultyCount = await Faculty.findOne({ facultyName : faculty }, "count -_id")
+        await Faculty.findOneAndUpdate({ facultyName: faculty }, { count: facultyCount.count+1 }, { new: true })
 
         await newUser.save()
         res.status(200).json({ connection: 'succesful', message: 'seller added'})

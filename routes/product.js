@@ -13,6 +13,37 @@ router.get('/', async (req, res) => {
 })
 
 //To retrive first 20 matching results for a requested keyword
+
+// let currentPage = 1;
+// let currentKey = ''; 
+
+// router.post('/search', async (req, res) => {
+//     try {
+//         const { key, page } = req.body;
+//         const itemsPerPage = 3;
+
+//         if (currentKey !== key) {
+//             currentPage = 1;
+//             currentKey = key;
+//         }
+
+//         if (page === 'next') {
+//             currentPage++;
+//         } else if (page === 'prev') {
+//             currentPage = Math.max(1, currentPage - 1);
+//         }
+
+//         const items = await Product.find({ keywords: { $regex: new RegExp(key, 'i') } })
+//             .skip((currentPage - 1) * itemsPerPage)
+//             .limit(itemsPerPage);
+
+//         res.json(items);
+//     } catch (err) {
+//         res.status(404).json({ message: 'not found', error: err });
+//     }
+// });
+
+
 router.get('/search/:key', async (req, res) => {
     try {
         const { key } = req.params
@@ -33,7 +64,7 @@ router.post('/add', async (req, res) => {
             productName: productName,
             keywords: keywords,
             subCategory: subCategory,
-            price: price,
+            price: parseFloat(price),
             status: status,
             gallery: gallery,
             description: description,
