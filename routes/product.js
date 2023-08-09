@@ -1,6 +1,7 @@
 const express = require('express')
 const router = express.Router()
 const Product = require('../models/product.model')
+const User = require('../models/user.model')
 
 //To get all products
 router.get('/', async (req, res) => {
@@ -14,43 +15,68 @@ router.get('/', async (req, res) => {
 
 //To retrive first 20 matching results for a requested keyword
 
-// let currentPage = 1;
-// let currentKey = ''; 
+let searchCurrentPage = 1
+let searchCurrentKey = '';
 
-// router.post('/search', async (req, res) => {
-//     try {
-//         const { key, page } = req.body;
-//         const itemsPerPage = 3;
-
-//         if (currentKey !== key) {
-//             currentPage = 1;
-//             currentKey = key;
-//         }
-
-//         if (page === 'next') {
-//             currentPage++;
-//         } else if (page === 'prev') {
-//             currentPage = Math.max(1, currentPage - 1);
-//         }
-
-//         const items = await Product.find({ keywords: { $regex: new RegExp(key, 'i') } })
-//             .skip((currentPage - 1) * itemsPerPage)
-//             .limit(itemsPerPage);
-
-//         res.json(items);
-//     } catch (err) {
-//         res.status(404).json({ message: 'not found', error: err });
-//     }
-// });
-
-
-router.get('/search/:key', async (req, res) => {
+router.post('/search', async (req, res) => {
     try {
-        const { key } = req.params
-        const respond = await Product.find({ keywords: { $regex: new RegExp(key, 'i') } }).limit(12)
-        res.json(respond)
+        const { key, page } = req.body
+        const itemsPerPage = 12
+
+        if (searchCurrentKey !== key) {
+            searchCurrentPage = 1
+            searchCurrentKey = key
+        }
+
+        if (page === 'next') {
+            searchCurrentPage++
+        } else if (page === 'prev') {
+            searchCurrentPage = Math.max(1, searchCurrentPage - 1)
+        }
+
+        const items = await Product.find({ keywords: { $regex: new RegExp(key, 'i') } })
+            .skip((searchCurrentPage - 1) * itemsPerPage)
+            .limit(itemsPerPage)
+
+        res.json(items);
     } catch (err) {
-        res.status(404).json({ message: 'not found', error: err})
+        res.status(404).json({ message: 'not found', error: err })
+    }
+});
+
+//to list productionaccording to accending oder of price
+
+let productsCurrentPage = 1 
+let productsSortOrder = 'asc' 
+
+router.post('/sort', async (req, res) => {
+    try {
+        const { page, sortOrder } = req.body
+
+        const itemsPerPage = 12
+
+        if (sortOrder === 'asc' || sortOrder === 'desc') {
+            productsSortOrder = sortOrder
+        }
+
+        if (page === 'next') {
+            productsCurrentPage++
+        } else if (page === 'prev') {
+            productsCurrentPage = Math.max(1, productsCurrentPage - 1)
+        } else if (typeof page === 'number') {
+            productsCurrentPage = Math.max(1, page)
+        }
+
+        const sortDirection = productsSortOrder === 'asc' ? 1 : -1
+
+        const items = await Product.find()
+            .sort({ price: sortDirection }) // Sort by 'price' field
+            .skip((productsCurrentPage - 1) * itemsPerPage)
+            .limit(itemsPerPage);
+
+        res.json(items)
+    } catch (err) {
+        res.status(500).json({ message: 'Internal server error', error: err })
     }
 })
 
