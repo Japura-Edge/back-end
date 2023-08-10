@@ -20,7 +20,7 @@ let searchCurrentKey = '';
 
 router.post('/search', async (req, res) => {
     try {
-        const { key, page } = req.body
+        const { key, page, lower, upper } = req.body
         const itemsPerPage = 12
 
         if (searchCurrentKey !== key) {
@@ -32,31 +32,47 @@ router.post('/search', async (req, res) => {
             searchCurrentPage++
         } else if (page === 'prev') {
             searchCurrentPage = Math.max(1, searchCurrentPage - 1)
+        } else if (typeof page === 'number') {
+            searchCurrentPage = Math.max(1, page)
         }
 
-        const items = await Product.find({ keywords: { $regex: new RegExp(key, 'i') } })
-            .skip((searchCurrentPage - 1) * itemsPerPage)
-            .limit(itemsPerPage)
+        // Handle undefined lower and upper
+        const lowerBound = typeof lower === 'number' ? lower : 0;
+        const upperBound = typeof upper === 'number' ? upper : Infinity;
 
-        res.json(items);
+        // Count of matching documents
+        const count = await Product.countDocuments({
+            keywords: { $regex: new RegExp(key, 'i') },
+            price: { $gte: lowerBound, $lte: upperBound }
+        });
+
+        const result = await Product.find({ 
+            keywords: { $regex: new RegExp(key, 'i') }, 
+            price: { $gte: lowerBound, $lte: upperBound } 
+        }).skip((searchCurrentPage - 1) * itemsPerPage).limit(itemsPerPage)
+
+        res.json({ count: count, result: result});
     } catch (err) {
         res.status(404).json({ message: 'not found', error: err })
     }
 });
 
-//to list productionaccording to accending oder of price
+//to list products according to accending oder of price and price ranges
 
 let productsCurrentPage = 1 
 let productsSortOrder = 'asc' 
 
 router.post('/sort', async (req, res) => {
     try {
-        const { page, sortOrder } = req.body
-
+        const { page, sortOrder, lower, upper } = req.body
         const itemsPerPage = 12
 
         if (sortOrder === 'asc' || sortOrder === 'desc') {
-            productsSortOrder = sortOrder
+            // Reset page number when the sort order changes
+            if (productsSortOrder !== sortOrder) {
+                productsSortOrder = sortOrder
+                productsCurrentPage = 1
+            }
         }
 
         if (page === 'next') {
@@ -67,18 +83,26 @@ router.post('/sort', async (req, res) => {
             productsCurrentPage = Math.max(1, page)
         }
 
+        // Handle undefined lower and upper
+        const lowerBound = typeof lower === 'number' ? lower : 0;
+        const upperBound = typeof upper === 'number' ? upper : Infinity;
+
         const sortDirection = productsSortOrder === 'asc' ? 1 : -1
 
-        const items = await Product.find()
+        // Count of matching documents
+        const count = await Product.countDocuments({ price: { $gte: lowerBound, $lte: upperBound } });
+
+        const products = await Product.find({price: { $gte: lowerBound, $lte: upperBound }})
             .sort({ price: sortDirection }) // Sort by 'price' field
             .skip((productsCurrentPage - 1) * itemsPerPage)
             .limit(itemsPerPage);
 
-        res.json(items)
+        res.json({ count: count, products: products })
     } catch (err) {
         res.status(500).json({ message: 'Internal server error', error: err })
     }
 })
+
 
 //To add a new product
 router.post('/add', async (req, res) => {
