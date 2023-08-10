@@ -10,6 +10,7 @@ const productSchema = new schema({
     price: {type: Number, required: true},
     status: {type: String, required: false},
     gallery: {type: [String], required: false},
+    favouriteCount: {type: Number, required: true},
     description: {type: String, required: false},
 }, {
     timestamps: true
