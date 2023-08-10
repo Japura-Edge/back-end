@@ -131,7 +131,7 @@ router.post('/add', async (req, res) => {
 router.put('/favCount', async (req, res) => {
     try {
         const { id } = req.body
-        const favCount = await Faculty.findOne({ _id: id }, "favouriteCount -_id")
+        const favCount = await Product.findOne({ _id: id }, "favouriteCount -_id")
         await Product.findOneAndUpdate({ _id: id }, { favouriteCount: favCount.favouriteCount+1 }, { new: true })
         res.json({ message: "update the count", error: err})
     } catch (err) {
