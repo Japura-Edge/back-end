@@ -8,10 +8,10 @@ const productSchema = new schema({
     keywords: {type: String, required: true},
     subCategory: {type: String, required: true},
     price: {type: Number, required: true},
-    status: {type: String, required: false},
-    gallery: {type: [String], required: false},
+    status: {type: String, required: true},
+    gallery: {type: [String], required: true},
     favouriteCount: {type: Number, required: true},
-    description: {type: String, required: false},
+    description: {type: String, required: true},
 }, {
     timestamps: true
 })

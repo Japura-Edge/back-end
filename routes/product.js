@@ -117,11 +117,23 @@ router.post('/add', async (req, res) => {
             price: parseFloat(price),
             status: status,
             gallery: gallery,
+            favouriteCount: 0,
             description: description,
         })
 
         await newproduct.save()
         res.status(200).json({ connection: 'succesful', message: 'product added'})
+    } catch (err) {
+        res.status(404).json({ message: 'failed', error: err})
+    }
+})
+
+router.put('/favCount', async (req, res) => {
+    try {
+        const { id } = req.body
+        const favCount = await Faculty.findOne({ _id: id }, "favouriteCount -_id")
+        await Product.findOneAndUpdate({ _id: id }, { favouriteCount: favCount.favouriteCount+1 }, { new: true })
+        res.json({ message: "update the count", error: err})
     } catch (err) {
         res.status(404).json({ message: 'failed', error: err})
     }
