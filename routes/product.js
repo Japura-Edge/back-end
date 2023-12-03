@@ -68,7 +68,7 @@ router.post('/sort', async (req, res) => {
         const itemsPerPage = 12
 
         if (sortOrder === 'asc' || sortOrder === 'desc') {
-            // Reset page number when the sort order changes
+            // Reset page number when the sorting order changes
             if (productsSortOrder !== sortOrder) {
                 productsSortOrder = sortOrder
                 productsCurrentPage = 1
